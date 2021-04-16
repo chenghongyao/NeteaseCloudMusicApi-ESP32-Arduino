@@ -3,52 +3,75 @@
 
 #include "encrypt.hpp"
 
-namespace netease {
+namespace netease
+{
 
-    namespace url {
+    namespace url
+    {
 
         const char *login =
             "http://music.163.com/weapi/login/cellphone?csrf_token=";
         const char *recommend_songs =
             "http://music.163.com/weapi/v2/discovery/recommend/songs?csrf_token=";
         const char *playlist_detail =
-                "https://music.163.com/weapi/v3/playlist/detail";
+            "https://music.163.com/weapi/v3/playlist/detail";
+        const char *user_detail =
+            "https://music.163.com/weapi/v1/user/detail";
+
+        const char *user_account =
+            "https://music.163.com/api/nuser/account/get";
+
         const char *user_playlist =
             "https://music.163.com/weapi/user/playlist";
+        const char *music_url =
+            "http://music.163.com/weapi/song/enhance/player/url";
 
     }
 
-
-    DynamicJsonDocument commandRequest(const String &url,const String &token,
-                                            const DynamicJsonDocument &data,const DynamicJsonDocument &filter,int bufferSize=1024*20){
+    DynamicJsonDocument commandRequest(const String &url, const String &token,
+                                       const DynamicJsonDocument &data, const DynamicJsonDocument &filter, int bufferSize = 1024 * 20)
+    {
         String strData;
         serializeJson(data, strData);
 
         DynamicJsonDocument doc(bufferSize);
         HTTPClient client;
         client.begin(url);
-        client.addHeader("cookie", "MUSIC_U=" + token);
+        if (!token.isEmpty())
+        {
+            client.addHeader("cookie", "MUSIC_U=" + token);
+        }
         client.addHeader("Content-Type", "application/x-www-form-urlencoded");
         client.setUserAgent(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, "
             "like Gecko) Chrome/83.0.4103.97 Safari/537.36");
 
         int status_code = client.POST(netease::encryptRequest(strData));
-        if (status_code != 200) {
+        if (status_code != 200)
+        {
             Serial.println(status_code);
-        } else {
+        }
+        else
+        {
             DeserializationError error = deserializeJson(
                 doc, client.getStream(), DeserializationOption::Filter(filter));
-            if (error) {
-            Serial.println("fail");
-            Serial.println(error.f_str());
+            if (error)
+            {
+                Serial.println("fail");
+                Serial.println(error.f_str());
             }
         }
         client.end();
         return doc;
     }
 
-    String login(const String &phone, const String &password) {
+    DynamicJsonDocument commandRequest(const String &url, const DynamicJsonDocument &data, const DynamicJsonDocument &filter, int bufferSize = 1024 * 20)
+    {
+        return commandRequest(url, "", data, filter, bufferSize);
+    }
+
+    String login(const String &phone, const String &password)
+    {
         String res;
 
         StaticJsonDocument<100> docData;
@@ -70,17 +93,23 @@ namespace netease {
             "like Gecko) Chrome/83.0.4103.97 Safari/537.36");
 
         int status_code = client.POST(encryptRequest(data));
-        if (status_code == 200) {
+        if (status_code == 200)
+        {
             DynamicJsonDocument doc(1024 * 5);
             deserializeJson(doc, client.getStream());
             int code = doc["code"].as<int>();
-            if (code == 200) {
+            if (code == 200)
+            {
                 res = doc["token"].as<String>();
-            } else {
+            }
+            else
+            {
                 Serial.print("code error:");
                 Serial.println(code);
             }
-        } else {
+        }
+        else
+        {
             Serial.print("http error:");
             Serial.println(status_code);
         }
@@ -88,14 +117,13 @@ namespace netease {
         client.end();
         return res;
     }
-    
 
-    DynamicJsonDocument getRecommendSongs(const String &token) {
+    DynamicJsonDocument getRecommendSongs(const String &token)
+    {
         DynamicJsonDocument data(100);
         data["offset"] = 0;
         data["limit"] = 999;
         data["total"] = true;
-
 
         DynamicJsonDocument filter(200);
         filter["code"] = true;
@@ -106,10 +134,11 @@ namespace netease {
         filter["recommend"][0]["album"]["name"] = true;
         filter["recommend"][0]["album"]["id"] = true;
 
-        return commandRequest(url::recommend_songs,token,data,filter);
+        return commandRequest(url::recommend_songs, token, data, filter);
     }
-    
-    DynamicJsonDocument getUserPlaylists(const String &token,const String &uid){
+
+    DynamicJsonDocument getUserPlaylists(const String &token, int uid)
+    {
 
         DynamicJsonDocument data(100);
         data["offset"] = 0;
@@ -125,11 +154,12 @@ namespace netease {
         filter["playlist"][0]["trackCount"] = true;
         filter["playlist"][0]["playCount"] = true;
 
-        return commandRequest(url::user_playlist,token,data,filter);
+        return commandRequest(url::user_playlist, token, data, filter);
     }
 
     // TODO: start??
-    DynamicJsonDocument getPlaylistDetail(const String &token,const String &id,int n){
+    DynamicJsonDocument getPlaylistDetail(const String &token, int id, int n)
+    {
         DynamicJsonDocument data(100);
         data["id"] = id;
         data["n"] = n;
@@ -146,18 +176,93 @@ namespace netease {
         filter["playlist"]["tracks"][0]["ar"][0]["name"] = true;
         filter["playlist"]["tracks"][0]["ar"][0]["id"] = true;
 
-        return commandRequest(url::playlist_detail,token,data,filter);
+        return commandRequest(url::playlist_detail, token, data, filter);
     }
 
-    class Netease{
+    DynamicJsonDocument getUserDetail(int uid)
+    {
+        DynamicJsonDocument data(100);
 
-        bool begin(){
-            
+        DynamicJsonDocument filter(300);
+        filter["code"] = true;
+        filter["level"] = true;
+        filter["listenSongs"] = true;
+        filter["profile"]["nickname"] = true;
+        filter["profile"]["avatarUrl"] = true;
+        filter["profile"]["vipType"] = true;
+        filter["profile"]["createTime"] = true;
+        filter["profile"]["birthday"] = true;
+        filter["profile"]["gender"] = true;
+        filter["profile"]["province"] = true;
+        filter["profile"]["city"] = true;
+        filter["profile"]["description"] = true;
+        filter["profile"]["followeds"] = true;
+        filter["profile"]["follows"] = true;
+        filter["profile"]["eventCount"] = true;
+        filter["profile"]["playlistCount"] = true;
+        filter["peopleCanSeeMyPlayRecord"] = true;
+        filter["createDays"] = true;
+
+        String uri = url::user_detail;
+        uri = uri + "/" + uid;
+
+        return commandRequest(uri, data, filter);
+    }
+
+    DynamicJsonDocument getUserAccount(const String &token)
+    {
+        DynamicJsonDocument data(100);
+
+        DynamicJsonDocument filter(300);
+        filter["code"] = true;
+        filter["account"]["id"] = true;
+        filter["account"]["userName"] = true;
+        filter["account"]["type"] = true;
+        filter["account"]["createTime"] = true;
+        filter["account"]["vipType"] = true;
+        filter["profile"]["userId"] = true;
+        filter["profile"]["nickname"] = true;
+        filter["profile"]["avatarUrl"] = true;
+        filter["profile"]["backgroundUrl"] = true;
+        filter["profile"]["vipType"] = true;
+        filter["profile"]["createTime"] = true;
+        filter["profile"]["birthday"] = true;
+        filter["profile"]["gender"] = true;
+        filter["profile"]["province"] = true;
+        filter["profile"]["city"] = true;
+        filter["profile"]["description"] = true;
+        filter["profile"]["lastLoginTime"] = true;
+        filter["profile"]["lastLoginIP"] = true;
+
+        return commandRequest(url::user_account, token, data, filter);
+    }
+
+    DynamicJsonDocument getMusicUrl(int mid)
+    {
+        DynamicJsonDocument data(100);
+        data["br"] = 999000;
+        data["csrf_token"] = "";
+        data["ids"][0] = mid;
+
+        DynamicJsonDocument filter(100);
+        filter["code"] = true;
+        filter["data"][0]["id"] = true;
+        filter["data"][0]["url"] = true;
+        filter["data"][0]["md5"] = true;
+        filter["data"][0]["type"] = true;
+
+        return commandRequest(url::music_url, data, filter);
+    }
+
+
+    class Netease
+    {
+
+        bool begin()
+        {
 
             return true;
         }
-
     };
 
-
-}  // namespace netease
+} // namespace netease

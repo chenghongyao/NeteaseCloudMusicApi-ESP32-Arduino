@@ -5,11 +5,12 @@
 #include "SD_MMC.h"
 #include "netease.hpp"
 
-
 WiFiClient wifi_Client;
-void setupWifi(const char *ssid, const char *passphrase) {
-  WiFi.begin(ssid,passphrase);
-  while (!WiFi.isConnected()) {
+void setupWifi(const char *ssid, const char *passphrase)
+{
+  WiFi.begin(ssid, passphrase);
+  while (!WiFi.isConnected())
+  {
     delay(500);
     Serial.print(".");
   }
@@ -17,67 +18,103 @@ void setupWifi(const char *ssid, const char *passphrase) {
   Serial.println(WiFi.localIP());
 }
 
-bool setupSD(){
-  if(!SD_MMC.begin()){
+bool setupSD()
+{
+  if (!SD_MMC.begin())
+  {
     Serial.println("sd mount fail");
     return false;
-  } 
+  }
 
   return true;
 }
 
-
-bool getLoginInfo(String &ssid, String &passphrase,String &phone,String &password){
+bool getLoginInfo(String &ssid, String &passphrase, String &phone, String &password)
+{
   char buffer[200];
 
   File login_file = SD_MMC.open("/login.json");
   int file_size = login_file.size();
-  if (file_size >= sizeof(buffer)){
+  if (file_size >= sizeof(buffer))
+  {
     Serial.print("error:file size too large");
   }
 
-  file_size = login_file.read((uint8_t*)buffer,file_size);
+  file_size = login_file.read((uint8_t *)buffer, file_size);
   buffer[file_size] = '\0';
 
   StaticJsonDocument<100> doc;
-  deserializeJson(doc,buffer);
-  phone = doc["phone"].as<const char*>();
-  password = doc["password"].as<const char*>();
-  ssid = doc["ssid"].as<const char*>();
-  passphrase = doc["passphrase"].as<const char*>();
+  deserializeJson(doc, buffer);
+  phone = doc["phone"].as<const char *>();
+  password = doc["password"].as<const char *>();
+  ssid = doc["ssid"].as<const char *>();
+  passphrase = doc["passphrase"].as<const char *>();
 
   return true;
 }
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
 
-  
-  String ssid,passphrase;
-  String phone,password;
-  if(!setupSD() || !getLoginInfo(ssid,passphrase,phone,password)) {
+  String ssid, passphrase;
+  String phone, password;
+  if (!setupSD() || !getLoginInfo(ssid, passphrase, phone, password))
+  {
     return;
   }
- 
+
   Serial.println(ssid);
   Serial.println(passphrase);
   Serial.println(phone);
   Serial.println(password);
 
-  setupWifi(ssid.c_str(),passphrase.c_str());
+  setupWifi(ssid.c_str(), passphrase.c_str());
 
-  
-
-  String token = netease::login(phone,password);
+  String token = netease::login(phone, password);
   Serial.print("token:");
   Serial.println(token);
 
   // DynamicJsonDocument doc =  netease::getRecommendSongs(token);
-  DynamicJsonDocument doc = netease::getUserPlaylists(token,"549456763");
-  // DynamicJsonDocument doc = netease::getPlaylistDetail(token,"823368123",50);
-  serializeJsonPretty(doc, Serial);
+  int uid;
+  {
+    DynamicJsonDocument doc = netease::getUserAccount(token);
+    uid = doc["account"]["id"].as<int>();
+  }
+  Serial.println(uid);
 
+  {
+    DynamicJsonDocument doc = netease::getUserDetail(uid);
+    // serializeJsonPretty(doc, Serial);
+  }
+
+  int pid;
+  String pname;
+  {
+    DynamicJsonDocument doc = netease::getUserPlaylists(token, uid);
+    pid = doc["playlist"][0]["id"].as<int>();
+    pname = doc["playlist"][0]["name"].as<const char *>();
+  }
+  Serial.println(pid);
+  Serial.println(pname);
+
+  int mid;
+  {
+    DynamicJsonDocument doc = netease::getPlaylistDetail(token, pid, 50);
+    mid = doc["playlist"]["tracks"][1]["id"].as<int>();
+    // serializeJsonPretty(doc, Serial);
+  }
+  Serial.println(mid);
+
+  String music_url;
+  {
+    DynamicJsonDocument doc = netease::getMusicUrl(mid);
+    music_url = doc["data"][0]["url"].as<const char *>();
+    // serializeJsonPretty(doc, Serial);
+  }
+  Serial.println(music_url);
 }
 
-void loop() { 
+void loop()
+{
 }
