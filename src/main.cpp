@@ -76,7 +76,6 @@ void setup()
   Serial.println(token);
 
   // DynamicJsonDocument doc =  netease::getRecommendSongs(token);
-  // DynamicJsonDocument doc = netease::getUserRecord(29879272, 0);
   // serializeJsonPretty(doc, Serial);
 
   int uid;
@@ -87,40 +86,43 @@ void setup()
   }
   Serial.println(uid);
 
-  // {
-  //   DynamicJsonDocument doc = netease::getUserDetail(uid);
-  //   // serializeJsonPretty(doc, Serial);
-  // }
+  {
+    DynamicJsonDocument doc = netease::getUserDetail(uid);
+    // serializeJsonPretty(doc, Serial);
+  }
 
-  // int pid;
-  // String pname;
-  // {
-  //   DynamicJsonDocument doc = netease::getUserPlaylists(token, uid);
-  //   pid = doc["playlist"][0]["id"].as<int>();
-  //   pname = doc["playlist"][0]["name"].as<const char *>();
-  //   // serializeJsonPretty(doc, Serial);
-  // }
-  // Serial.println(pid);
-  // Serial.println(pname);
+  int pid;
+  String pname;
+  {
+    DynamicJsonDocument doc = netease::getUserPlaylists(token, uid);
+    pid = doc["playlist"][0]["id"].as<int>();
+    pname = doc["playlist"][0]["name"].as<const char *>();
+    // serializeJsonPretty(doc, Serial);
+  }
+  Serial.println(pid);
+  Serial.println(pname);
 
-  // int mid;
-  // {
-  //   DynamicJsonDocument doc = netease::getPlaylistDetail(token, pid, 50);
-  //   mid = doc["playlist"]["tracks"][1]["id"].as<int>();
-  //   // serializeJsonPretty(doc, Serial);
-  // }
-  // Serial.println(mid);
+  int mid;
+  {
+    DynamicJsonDocument doc = netease::getPlaylistDetail(token, pid, 50);
+    mid = doc["playlist"]["tracks"][1]["id"].as<int>();
+    // serializeJsonPretty(doc, Serial);
+  }
+  Serial.println(mid);
 
-  // String music_url;
-  // {
-  //   DynamicJsonDocument doc = netease::getMusicUrl(mid);
-  //   music_url = doc["data"][0]["url"].as<const char *>();
-  //   // serializeJsonPretty(doc, Serial);
-  // }
-  // Serial.println(music_url);
+  String music_url;
+  {
+    DynamicJsonDocument doc = netease::getMusicUrl(mid);
+    music_url = doc["data"][0]["url"].as<const char *>();
+    // serializeJsonPretty(doc, Serial);
+  }
+  Serial.println(music_url);
 
-  DynamicJsonDocument doc = netease::getUserRecord(uid, 1, token);
-  serializeJsonPretty(doc, Serial);
+  {
+    // DynamicJsonDocument doc = netease::getUserRecord(29879272, 0);
+    DynamicJsonDocument doc = netease::getUserRecord(uid, 1, token);
+    // serializeJsonPretty(doc, Serial);
+  }
 }
 
 void loop()
