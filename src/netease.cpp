@@ -25,6 +25,8 @@ namespace netease
             "https://music.163.com/weapi/user/playlist";
         const char *music_url =
             "http://music.163.com/weapi/song/enhance/player/url";
+        const char *user_record =
+            "https://music.163.com/weapi/v1/play/record";
 
     }
 
@@ -127,6 +129,7 @@ namespace netease
 
         DynamicJsonDocument filter(200);
         filter["code"] = true;
+        filter["msg"] = true;
         filter["recommend"][0]["name"] = true;
         filter["recommend"][0]["id"] = true;
         filter["recommend"][0]["artists"][0]["name"] = true;
@@ -147,6 +150,7 @@ namespace netease
 
         DynamicJsonDocument filter(200);
         filter["code"] = true;
+        filter["msg"] = true;
         filter["more"] = true;
         filter["playlist"][0]["name"] = true;
         filter["playlist"][0]["id"] = true;
@@ -166,6 +170,7 @@ namespace netease
 
         DynamicJsonDocument filter(300);
         filter["code"] = true;
+        filter["msg"] = true;
         filter["playlist"]["name"] = true;
         filter["playlist"]["id"] = true;
         filter["playlist"]["coverImgUrl"] = true;
@@ -185,6 +190,7 @@ namespace netease
 
         DynamicJsonDocument filter(300);
         filter["code"] = true;
+        filter["msg"] = true;
         filter["level"] = true;
         filter["listenSongs"] = true;
         filter["profile"]["nickname"] = true;
@@ -215,6 +221,7 @@ namespace netease
 
         DynamicJsonDocument filter(300);
         filter["code"] = true;
+        filter["msg"] = true;
         filter["account"]["id"] = true;
         filter["account"]["userName"] = true;
         filter["account"]["type"] = true;
@@ -246,6 +253,7 @@ namespace netease
 
         DynamicJsonDocument filter(100);
         filter["code"] = true;
+        filter["msg"] = true;
         filter["data"][0]["id"] = true;
         filter["data"][0]["url"] = true;
         filter["data"][0]["md5"] = true;
@@ -254,7 +262,55 @@ namespace netease
         return commandRequest(url::music_url, data, filter);
     }
 
+    DynamicJsonDocument getUserRecord(int uid, int type, const String &token)
+    {
+        DynamicJsonDocument data(100);
+        data["uid"] = uid;
+        data["type"] = type;
 
+        DynamicJsonDocument filter(300);
+        filter["code"] = true;
+        filter["msg"] = true;
+        if (type == 0)
+        {
+            filter["allData"][0]["playCount"] = true;
+            filter["allData"][0]["score"] = true;
+            filter["allData"][0]["song"]["name"] = true;
+            filter["allData"][0]["song"]["id"] = true;
+            filter["allData"][0]["song"]["ar"][0]["name"] = true;
+            filter["allData"][0]["song"]["ar"][0]["id"] = true;
+            filter["allData"][0]["song"]["al"][0]["name"] = true;
+            filter["allData"][0]["song"]["al"][0]["id"] = true;
+            filter["allData"][0]["song"]["dt"] = true;
+            filter["allData"][0]["song"]["h"]["br"] = true;
+            filter["allData"][0]["song"]["h"]["size"] = true;
+            filter["allData"][0]["song"]["m"]["br"] = true;
+            filter["allData"][0]["song"]["m"]["size"] = true;
+            filter["allData"][0]["song"]["l"]["br"] = true;
+            filter["allData"][0]["song"]["l"]["size"] = true;
+            filter["allData"][0]["song"]["publishTime"] = true;
+        }
+        else
+        {
+            filter["weekData"][0]["playCount"] = true;
+            filter["weekData"][0]["score"] = true;
+            filter["weekData"][0]["song"]["name"] = true;
+            filter["weekData"][0]["song"]["id"] = true;
+            filter["weekData"][0]["song"]["ar"][0]["name"] = true;
+            filter["weekData"][0]["song"]["ar"][0]["id"] = true;
+            filter["weekData"][0]["song"]["al"][0]["name"] = true;
+            filter["weekData"][0]["song"]["al"][0]["id"] = true;
+            filter["weekData"][0]["song"]["dt"] = true;
+            filter["weekData"][0]["song"]["h"]["br"] = true;
+            filter["weekData"][0]["song"]["h"]["size"] = true;
+            filter["weekData"][0]["song"]["m"]["br"] = true;
+            filter["weekData"][0]["song"]["m"]["size"] = true;
+            filter["weekData"][0]["song"]["l"]["br"] = true;
+            filter["weekData"][0]["song"]["l"]["size"] = true;
+            filter["weekData"][0]["song"]["publishTime"] = true;
+        }
+        return commandRequest(url::user_record, token, data, filter);
+    }
     class Netease
     {
 
