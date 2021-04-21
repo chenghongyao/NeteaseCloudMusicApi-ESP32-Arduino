@@ -18,8 +18,11 @@
 - `getPlaylistDetail`：获取歌单信息
 - `getUserDetail`：获取用户信息
 - `getUserAccount`：获取当前登录的账户信息
+- `getUserLevel`：获取当前登录的用户等级
 - `getMusicUrl`：获取歌曲的url信息（下载链接，只对免费歌曲有效）
 - `getUserRecord`：获取用户的听歌排行
+- ~~`getUserEvent`: 获取用户动态(返回的JSON太大，无法设置返回长度)~~
+- `getPersonalFM`: 获取私人FM(每次请求返回3首歌的信息)
 
 # 使用示例
 目前看看 main.cpp 中的示例

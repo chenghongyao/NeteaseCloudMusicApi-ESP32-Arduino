@@ -123,6 +123,16 @@ void setup()
     DynamicJsonDocument doc = netease::getUserRecord(uid, 1, token);
     // serializeJsonPretty(doc, Serial);
   }
+
+  {
+    DynamicJsonDocument doc = netease::getUserLevel(token);
+    // serializeJsonPretty(doc, Serial);
+  }
+
+  {
+    DynamicJsonDocument doc = netease::getPersonalFM(token);
+    // serializeJsonPretty(doc, Serial);
+  }
 }
 
 void loop()
