@@ -16,6 +16,9 @@ namespace netease
     DynamicJsonDocument getUserLevel(const String &token);
     DynamicJsonDocument getMusicUrl(int mid);
     DynamicJsonDocument getUserRecord(int uid, int type, const String &token = "");
+    DynamicJsonDocument getUserFollows(int uid, int offset = 0, int limit = 10, const String &token = "");
+    DynamicJsonDocument getUserFolloweds(int uid, int offset = 0, int limit = 10, const String &token = "");
+
     // DynamicJsonDocument getUserEvent(int uid, int lasttime = -1, int limit = 1, const String &token = "");
     DynamicJsonDocument getPersonalFM(const String &token);
 }

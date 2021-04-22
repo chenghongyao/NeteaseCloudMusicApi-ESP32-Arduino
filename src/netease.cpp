@@ -29,6 +29,10 @@ namespace netease
             "http://music.163.com/weapi/song/enhance/player/url";
         const char *user_record =
             "https://music.163.com/weapi/v1/play/record";
+        const char *user_follows =
+            "https://music.163.com/weapi/user/getfollows";
+        const char *user_followeds =
+            "https://music.163.com/weapi/user/getfolloweds";
         const char *user_event =
             "https://music.163.com/api/event/get";
         const char *personal_fm =
@@ -331,6 +335,60 @@ namespace netease
             filter["weekData"][0]["song"]["publishTime"] = true;
         }
         return commandRequest(url::user_record, token, data, filter);
+    }
+
+    DynamicJsonDocument getUserFollows(int uid, int offset, int limit, const String &token)
+    {
+        DynamicJsonDocument data(100);
+        data["offset"] = offset;
+        data["limit"] = limit;
+        data["order"] = true;
+
+        DynamicJsonDocument filter(300);
+        filter["code"] = true;
+        filter["message"] = true;
+        filter["more"] = true;
+        filter["follow"][0]["userId"] = true;
+        filter["follow"][0]["mutual"] = true;
+        filter["follow"][0]["nickname"] = true;
+        filter["follow"][0]["follows"] = true;
+        filter["follow"][0]["followeds"] = true;
+        filter["follow"][0]["gender"] = true;
+        filter["follow"][0]["avatarUrl"] = true;
+        filter["follow"][0]["followed"] = true;
+        filter["follow"][0]["eventCount"] = true;
+        filter["follow"][0]["playlistCount"] = true;
+
+        String uri = url::user_follows;
+        return commandRequest(uri + "/" + uid, token, data, filter);
+    }
+
+    DynamicJsonDocument getUserFolloweds(int uid, int offset, int limit, const String &token)
+    {
+        DynamicJsonDocument data(100);
+        data["offset"] = offset;
+        data["limit"] = limit;
+        data["time"] = 0;
+        data["getcounts"] = true;
+
+        DynamicJsonDocument filter(300);
+        filter["code"] = true;
+        filter["message"] = true;
+        filter["more"] = true;
+        filter["followeds"][0]["userId"] = true;
+        filter["followeds"][0]["time"] = true;
+        filter["followeds"][0]["mutual"] = true;
+        filter["followeds"][0]["nickname"] = true;
+        filter["followeds"][0]["follows"] = true;
+        filter["followeds"][0]["followeds"] = true;
+        filter["followeds"][0]["gender"] = true;
+        filter["followeds"][0]["avatarUrl"] = true;
+        filter["followeds"][0]["followed"] = true;
+        filter["followeds"][0]["eventCount"] = true;
+        filter["followeds"][0]["playlistCount"] = true;
+
+        String uri = url::user_followeds;
+        return commandRequest(uri + "/" + uid, token, data, filter);
     }
 
     // TODO: more event type
