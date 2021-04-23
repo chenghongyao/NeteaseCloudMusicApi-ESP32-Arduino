@@ -21,6 +21,8 @@
 - `getUserLevel`：获取当前登录的用户等级
 - `getMusicUrl`：获取歌曲的url信息（下载链接，只对免费歌曲有效）
 - `getUserRecord`：获取用户的听歌排行
+- `getUserFollows`: 获取用户关注
+- `getUserFolloweds`：获取用户粉丝
 - ~~`getUserEvent`: 获取用户动态(返回的JSON太大，无法设置返回长度)~~
 - `getPersonalFM`: 获取私人FM(每次请求返回3首歌的信息)
 
