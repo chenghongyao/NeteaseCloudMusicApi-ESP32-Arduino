@@ -3,7 +3,7 @@
 
 #include "WiFi.h"
 #include "SD_MMC.h"
-#include "netease.hpp"
+#include "netease.h"
 
 WiFiClient wifi_Client;
 void setupWifi(const char *ssid, const char *passphrase)
@@ -53,6 +53,7 @@ bool getLoginInfo(String &ssid, String &passphrase, String &phone, String &passw
   return true;
 }
 
+namespace nte = netease;
 void setup()
 {
   Serial.begin(115200);
@@ -71,78 +72,12 @@ void setup()
 
   setupWifi(ssid.c_str(), passphrase.c_str());
 
-  String token = netease::login(phone, password);
-  Serial.print("token:");
-  Serial.println(token);
+  auto me = netease::login(phone,password);
+  Serial.println(me.token());
 
-  // DynamicJsonDocument doc =  netease::getRecommendSongs(token);
-  // serializeJsonPretty(doc, Serial);
+  auto resp = me.getUserAccount();
+  serializeJsonPretty(resp,Serial);
 
-  int uid;
-  {
-    DynamicJsonDocument doc = netease::getUserAccount(token);
-    uid = doc["account"]["id"].as<int>();
-    // serializeJsonPretty(doc, Serial);
-  }
-  Serial.println(uid);
-
-  {
-    DynamicJsonDocument doc = netease::getUserDetail(uid);
-    // serializeJsonPretty(doc, Serial);
-  }
-
-  int pid;
-  String pname;
-  {
-    DynamicJsonDocument doc = netease::getUserPlaylists(token, uid);
-    pid = doc["playlist"][0]["id"].as<int>();
-    pname = doc["playlist"][0]["name"].as<const char *>();
-    // serializeJsonPretty(doc, Serial);
-  }
-  Serial.println(pid);
-  Serial.println(pname);
-
-  int mid;
-  {
-    DynamicJsonDocument doc = netease::getPlaylistDetail(token, pid, 50);
-    mid = doc["playlist"]["tracks"][1]["id"].as<int>();
-    // serializeJsonPretty(doc, Serial);
-  }
-  Serial.println(mid);
-
-  String music_url;
-  {
-    DynamicJsonDocument doc = netease::getMusicUrl(mid);
-    music_url = doc["data"][0]["url"].as<const char *>();
-    // serializeJsonPretty(doc, Serial);
-  }
-  Serial.println(music_url);
-
-  {
-    // DynamicJsonDocument doc = netease::getUserRecord(29879272, 0);
-    DynamicJsonDocument doc = netease::getUserRecord(uid, 1, token);
-    // serializeJsonPretty(doc, Serial);
-  }
-
-  {
-    DynamicJsonDocument doc = netease::getUserLevel(token);
-    // serializeJsonPretty(doc, Serial);
-  }
-
-  {
-    DynamicJsonDocument doc = netease::getPersonalFM(token);
-    // serializeJsonPretty(doc, Serial);
-  }
-
-  {
-    DynamicJsonDocument doc = netease::getUserFollows(uid);
-    serializeJsonPretty(doc, Serial);
-  }
-
-  {
-    DynamicJsonDocument doc = netease::getUserFolloweds(uid, 0, 10, token);
-    serializeJsonPretty(doc, Serial);
-  }
 }
 
 void loop()

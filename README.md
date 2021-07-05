@@ -27,4 +27,24 @@
 - `getPersonalFM`: 获取私人FM(每次请求返回3首歌的信息)
 
 # 使用示例
-目前看看 main.cpp 中的示例
+在使用前需要包含头文件 `netease.h`，所有相关函数都在命名空间 `netease` 下：
+```C++
+#include <netease.h>
+namespace ntes = netease;
+```
+## 登录
+只支持手机号登录：
+```C++
+    String phone = "1301111111";
+    String password = "password";
+    ntes::User me = ntes::login(phone,password);
+
+    DynamicJsonDocument resp = me.getUserAccount();
+    serializeJsonPretty(resp,Serial); // 序列化输出到串口
+```
+可以使用自动类型推导，更加简洁，以后的实例将使用这种写法：
+```C++
+    auto me = ntes::login("1301111111","password");
+    auto resp = me.getUserAccount();
+    serializeJsonPretty(resp,Serial);
+```
