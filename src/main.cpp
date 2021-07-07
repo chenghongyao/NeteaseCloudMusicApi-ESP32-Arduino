@@ -72,7 +72,7 @@ void setup()
 
   setupWifi(ssid.c_str(), passphrase.c_str());
 
-  auto me = netease::login(phone,password);
+  auto me = netease::login(phone,"111111");
   Serial.println(me.token());
 
   auto resp = me.getUserAccount();
