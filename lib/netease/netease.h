@@ -20,6 +20,15 @@ namespace netease {
         }
 
         DynamicJsonDocument getUserAccount() const;
+        DynamicJsonDocument getRecommendSongs() const;
+        DynamicJsonDocument getUserPlaylists(int uid) const;
+        DynamicJsonDocument getPlaylistDetail(int id, int n) const;
+        DynamicJsonDocument getUserLevel() const;
+        DynamicJsonDocument getUserRecord(int uid, int type) const;
+        DynamicJsonDocument getUserFollows(int uid, int offset, int limit) const;
+        DynamicJsonDocument getUserFolloweds(int uid, int offset, int limit) const; 
+        DynamicJsonDocument getUserEvent(int uid, int lasttime, int limit) const;
+        DynamicJsonDocument getPersonalFM() const;
 
     };
 

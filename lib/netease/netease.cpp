@@ -90,31 +90,7 @@ namespace netease {
         return commandRequest(url, "", data, filter, bufferSize);
     }
 
-    
-
-    DynamicJsonDocument getRecommendSongs(const String &token)
-    {
-        DynamicJsonDocument data(100);
-        data["offset"] = 0;
-        data["limit"] = 999;
-        data["total"] = true;
-
-        DynamicJsonDocument filter(200);
-        filter["code"] = true;
-        filter["msg"] = true;
-        filter["recommend"][0]["name"] = true;
-        filter["recommend"][0]["id"] = true;
-        filter["recommend"][0]["artists"][0]["name"] = true;
-        filter["recommend"][0]["artists"][0]["id"] = true;
-        filter["recommend"][0]["album"]["name"] = true;
-        filter["recommend"][0]["album"]["id"] = true;
-
-        return commandRequest(url::recommend_songs, token, data, filter);
-    }
-
-    DynamicJsonDocument getUserPlaylists(const String &token, int uid)
-    {
-
+    DynamicJsonDocument getUserPlaylists(int uid,const String &token = "") {
         DynamicJsonDocument data(100);
         data["offset"] = 0;
         data["limit"] = 99;
@@ -134,8 +110,7 @@ namespace netease {
     }
 
     // TODO: start??
-    DynamicJsonDocument getPlaylistDetail(const String &token, int id, int n)
-    {
+    DynamicJsonDocument getPlaylistDetail(int id, int n, const String &token = "") {
         DynamicJsonDocument data(100);
         data["id"] = id;
         data["n"] = n;
@@ -187,40 +162,6 @@ namespace netease {
         return commandRequest(uri, data, filter);
     }
 
-    DynamicJsonDocument getUserAccount(const String &token)
-    {
-        DynamicJsonDocument data(5);
-
-        DynamicJsonDocument filter(300);
-        filter["code"] = true;
-        filter["msg"] = true;
-        filter["account"]["id"] = true;
-        filter["account"]["userName"] = true;
-        filter["account"]["type"] = true;
-        filter["account"]["createTime"] = true;
-        filter["account"]["vipType"] = true;
-        filter["profile"]["userId"] = true;
-        filter["profile"]["nickname"] = true;
-        filter["profile"]["avatarUrl"] = true;
-        filter["profile"]["backgroundUrl"] = true;
-        filter["profile"]["vipType"] = true;
-        filter["profile"]["createTime"] = true;
-        filter["profile"]["birthday"] = true;
-        filter["profile"]["gender"] = true;
-        filter["profile"]["province"] = true;
-        filter["profile"]["city"] = true;
-        filter["profile"]["description"] = true;
-        filter["profile"]["lastLoginTime"] = true;
-        filter["profile"]["lastLoginIP"] = true;
-
-        return commandRequest(url::user_account, token, data, filter);
-    }
-
-    DynamicJsonDocument getUserLevel(const String &token)
-    {
-        DynamicJsonDocument data(5);
-        return commandRequest(url::user_level, token, data);
-    }
 
     DynamicJsonDocument getMusicUrl(int mid)
     {
@@ -240,7 +181,7 @@ namespace netease {
         return commandRequest(url::music_url, data, filter);
     }
 
-    DynamicJsonDocument getUserRecord(int uid, int type, const String &token)
+    DynamicJsonDocument getUserRecord(int uid, int type, const String &token="")
     {
         DynamicJsonDocument data(100);
         data["uid"] = uid;
@@ -290,7 +231,7 @@ namespace netease {
         return commandRequest(url::user_record, token, data, filter);
     }
 
-    DynamicJsonDocument getUserFollows(int uid, int offset, int limit, const String &token)
+    DynamicJsonDocument getUserFollows(int uid, int offset, int limit, const String &token="")
     {
         DynamicJsonDocument data(100);
         data["offset"] = offset;
@@ -316,7 +257,7 @@ namespace netease {
         return commandRequest(uri + "/" + uid, token, data, filter);
     }
 
-    DynamicJsonDocument getUserFolloweds(int uid, int offset, int limit, const String &token)
+    DynamicJsonDocument getUserFolloweds(int uid, int offset, int limit, const String &token="")
     {
         DynamicJsonDocument data(100);
         data["offset"] = offset;
@@ -346,7 +287,7 @@ namespace netease {
 
     // TODO: more event type
     // FIXME: too large
-    DynamicJsonDocument getUserEvent(int uid, int lasttime, int limit, const String &token)
+    DynamicJsonDocument getUserEvent(int uid, int lasttime, int limit, const String &token="")
     {
         DynamicJsonDocument data(100);
         data["getcounts"] = true;
@@ -368,30 +309,6 @@ namespace netease {
         String uri = url::user_event;
         uri = uri + "/" + uid;
         return commandRequest(uri, token, data, filter);
-    }
-
-    DynamicJsonDocument getPersonalFM(const String &token)
-    {
-        DynamicJsonDocument data(5);
-
-        DynamicJsonDocument filter(300);
-        filter["code"] = true;
-        filter["msg"] = true;
-        filter["data"][0]["name"] = true;
-        filter["data"][0]["id"] = true;
-        filter["data"][0]["artists"][0]["name"] = true;
-        filter["data"][0]["artists"][0]["id"] = true;
-        // filter["data"][0]["album"]["name"] = true;
-        // filter["data"][0]["album"]["id"] = true;
-        // filter["data"][0]["album"]["picUrl"] = true;
-        filter["data"][0]["popularity"] = true;
-        filter["data"][0]["score"] = true;
-        filter["data"][0]["duration"] = true;
-        filter["data"][0]["commentThreadId"] = true;
-
-        filter["events"][0]["json"] = true;
-
-        return commandRequest(url::personal_fm, token, data, filter);
     }
 
 
@@ -468,4 +385,80 @@ namespace netease {
 
         return commandRequest(url::user_account, _token, data, filter);
     }
-} // namespace netease
+
+    DynamicJsonDocument User::getRecommendSongs() const {
+        DynamicJsonDocument data(100);
+        data["offset"] = 0;
+        data["limit"] = 999;
+        data["total"] = true;
+
+        DynamicJsonDocument filter(200);
+        filter["code"] = true;
+        filter["msg"] = true;
+        filter["recommend"][0]["name"] = true;
+        filter["recommend"][0]["id"] = true;
+        filter["recommend"][0]["artists"][0]["name"] = true;
+        filter["recommend"][0]["artists"][0]["id"] = true;
+        filter["recommend"][0]["album"]["name"] = true;
+        filter["recommend"][0]["album"]["id"] = true;
+
+        return commandRequest(url::recommend_songs, _token, data, filter);
+    }
+    
+    DynamicJsonDocument User::getUserPlaylists(int uid) const {
+        return netease::getUserPlaylists(uid,_token);
+    }
+
+    DynamicJsonDocument User::getPlaylistDetail(int id, int n) const {
+        return netease::getPlaylistDetail(id,n,_token);
+    }
+    
+
+    DynamicJsonDocument User::getUserLevel() const {
+        DynamicJsonDocument data(5);
+        return commandRequest(url::user_level, _token, data);
+    }
+
+    DynamicJsonDocument User::getUserRecord(int uid, int type) const {
+        return netease::getUserRecord(uid,type,_token);
+    }
+
+    DynamicJsonDocument User::getUserFollows(int uid, int offset, int limit) const {
+        return netease::getUserFollows(uid,offset,limit,_token);
+    }
+
+    DynamicJsonDocument User::getUserFolloweds(int uid, int offset, int limit) const {
+        return netease::getUserFolloweds(uid,offset,limit,_token);
+    }
+    DynamicJsonDocument User::getUserEvent(int uid, int lasttime, int limit) const {
+        return netease::getUserEvent(uid,lasttime,limit,_token);
+    }
+
+    DynamicJsonDocument User::getPersonalFM() const
+    {
+        DynamicJsonDocument data(5);
+
+        DynamicJsonDocument filter(300);
+        filter["code"] = true;
+        filter["msg"] = true;
+        filter["data"][0]["name"] = true;
+        filter["data"][0]["id"] = true;
+        filter["data"][0]["artists"][0]["name"] = true;
+        filter["data"][0]["artists"][0]["id"] = true;
+        // filter["data"][0]["album"]["name"] = true;
+        // filter["data"][0]["album"]["id"] = true;
+        // filter["data"][0]["album"]["picUrl"] = true;
+        filter["data"][0]["popularity"] = true;
+        filter["data"][0]["score"] = true;
+        filter["data"][0]["duration"] = true;
+        filter["data"][0]["commentThreadId"] = true;
+
+        filter["events"][0]["json"] = true;
+
+        return commandRequest(url::personal_fm, _token, data, filter);
+    }
+
+
+
+} 
+// namespace netease
